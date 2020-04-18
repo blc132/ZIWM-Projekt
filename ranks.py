@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+import glob
 
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
@@ -28,8 +29,7 @@ def get_data(files):
 
 
 def main():
-    files_dir = os.path.join(script_dir, 'sets')
-    files = os.listdir(files_dir)
+    files = glob.glob('sets/*.txt')
     X, Y = get_data(files)
 
     fvalue_selector = SelectKBest(f_classif)
