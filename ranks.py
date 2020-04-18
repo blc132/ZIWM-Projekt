@@ -27,10 +27,12 @@ np.savetxt('text.txt',data_matrix,fmt='%i')
 X  = data_matrix[:, :-1]
 Y = data_matrix[:,-1]
 
-print(X)
-print(Y)
 fvalue_selector = SelectKBest(f_classif)
 fvalue_selector.fit(X, Y)
 
 rank = fvalue_selector.scores_
-print(rank)
+
+indexes = rank.argsort()[-10:][::-1]
+
+for index in indexes:
+    print(f'{index}: {rank[index]}')
