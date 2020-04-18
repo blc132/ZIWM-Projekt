@@ -23,23 +23,14 @@ for x in range(len(files) -1):
     temp_matrix = np.column_stack((temp_matrix, last_col))
     data_matrix = np.concatenate((data_matrix, temp_matrix), axis=0)
 
-# print(data_matrix)
 np.savetxt('text.txt',data_matrix,fmt='%i')
-# xd = np.arange(59).T
-# print(xd.shape)
-# print(type(xd))
+X  = data_matrix[:, :-1]
+Y = data_matrix[:,-1]
 
-# data = data_matrix
-# print(data)
-# print(type(data))
+print(X)
+print(Y)
+fvalue_selector = SelectKBest(f_classif)
+fvalue_selector.fit(X, Y)
 
-# fvalue_selector = SelectKBest(f_classif)
-# fvalue_selector.fit(data, xd)
-
-
-# rank = fvalue_selector.scores_
-# rank_pd = pd.DataFrame(rank)
-# print(rank_pd)
-# data = pd.read_csv('sets/inne.txt', sep=" ", header=None)
-
-# print(data)
+rank = fvalue_selector.scores_
+print(rank)
