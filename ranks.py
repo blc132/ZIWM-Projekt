@@ -40,8 +40,9 @@ def classification(X, Y, activation_value, momentum_value, top_rank, fvalue_sele
 
     # Utworzenie modelu o wcześniej zdefiniowanych parametrach
     mlp = MLPClassifier(hidden_layer_sizes=layer_size,
-                        activation=activation_value, max_iter=1000, momentum=momentum_value)
+                        activation=activation_value, max_iter=200, momentum=momentum_value)
 
+    first_time = True
     # Pętla dla 5 krotnej walidacji krzyżowej
     for train, test in rkf.split(X, Y):
         x_train, x_test = X[train], X[test]
@@ -60,15 +61,21 @@ def classification(X, Y, activation_value, momentum_value, top_rank, fvalue_sele
         confusion_matrix_value = confusion_matrix(y_test, predict)
 
         # Utworzenie nowego rekordu z danymi odnośnie wykonanego badania
-        current_score = [score, activation_value,
-                         momentum_value, layer_size, confusion_matrix_value]
+        if first_time:
+            temp_score = score
+            temp_confusion_matrix = confusion_matrix_value
+            first_time = False
+        else:
+            temp_score = temp_score + score
+            temp_confusion_matrix = temp_confusion_matrix + confusion_matrix_value
 
-        list_score.append(current_score)
+    current_score = [temp_score/5, activation_value, momentum_value,
+                     layer_size, len(top_rank), temp_confusion_matrix/5]
+    # Ustawienie aktualnie najlepszego wyniku
+    if best_score[0] < current_score[0]:
+        best_score = deepcopy(current_score)
 
-        # Ustawienie aktualnie najlepszego wyniku
-        if best_score[0] < score:
-            best_score = deepcopy(current_score)
-
+    list_score.append(current_score)
     return best_score
 
 
@@ -82,7 +89,7 @@ def main():
 
     rank = fvalue_selector.scores_
     top_rank = []
-    indexes = rank.argsort()[-10:][::-1]
+    indexes = rank.argsort()[-16:][::-1]
 
     for index in indexes:
         top_rank.append(rank[index])
@@ -90,18 +97,21 @@ def main():
     # 2. Implementacja środowiska eksperymentowania
 
     # Format zapisu wyniku - [wynik, typ funkcji aktywacji, wartość momentum, rozmiar warstwy, macierz pomyłek]
-    best_score = [0, '', 0, 0, np.ndarray]
+    best_score = [0, '', 0, 0, 0, np.ndarray]
     # Tablica przechowująca wyniki wszystkich badań w formacie takim samym jak zmienna "best_score"
     list_score = []
 
     # Zdefiniowane trzech iczb neuronów w warstwie ukrytej
     layers = [100, 200, 300]
+    # layers = [100]
 
     # Typy funkcji aktywacji
     activation_values = ['relu', 'logistic']
+    # activation_values = ['relu']
 
     # Wartości momentum (domyślna wartość wynosi 0)
     momentum_values = [0, 0.9]
+    # momentum_values = [0]
 
     # Całkowita liczba wszystkich badań
     total_examinations = len(momentum_values) * \
@@ -114,20 +124,22 @@ def main():
     for layer in layers:
         for activation_value in activation_values:
             for momentum_value in momentum_values:
-                for feature_number in range(1, 10):
+                for feature_number in range(1, 15):
+                    to_train = indexes[:feature_number]
+
                     print(f'{current_examination}/{total_examinations} - start')
 
-                    best_score = classification(X=X, Y=Y, activation_value=activation_value, momentum_value=momentum_value, top_rank=top_rank[:feature_number-1], fvalue_selector=fvalue_selector,
+                    best_score = classification(X=X[:, to_train], Y=Y, activation_value=activation_value,
+                                                momentum_value=momentum_value, top_rank=top_rank[
+                                                    :feature_number - 1],
+                                                fvalue_selector=fvalue_selector,
                                                 layer_size=layer, best_score=best_score, list_score=list_score)
 
                     print(f'{current_examination}/{total_examinations} - end')
                     current_examination += 1
 
-    for score in list_score:
-        print(score)
-    print("\n\n--------------------------------\n\n")
-
-    print(best_score)
+    dflist = pd.DataFrame(list_score)
+    dflist.to_csv('wyniki.txt', encoding='utf-8', index=False)
 
 
 if __name__ == "__main__":
