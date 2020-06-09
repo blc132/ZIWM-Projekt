@@ -72,7 +72,9 @@ def classification(X, Y, activation_value, momentum_value, top_rank, fvalue_sele
             temp_confusion_matrix = temp_confusion_matrix + confusion_matrix_value
 
     current_score = [temp_score/10, activation_value, momentum_value,
-                     layer_size, len(top_rank), temp_confusion_matrix/10]
+                     layer_size, len(top_rank), (temp_confusion_matrix/10).astype(int)]
+
+    print(f"----\navg: {current_score[0]}\n-----")
     # Ustawienie aktualnie najlepszego wyniku
     if best_score[0] < current_score[0]:
         best_score = deepcopy(current_score)
@@ -91,7 +93,7 @@ def main():
 
     rank = fvalue_selector.scores_
     top_rank = []
-    indexes = rank.argsort()[-16:][::-1]
+    indexes = rank.argsort()[-30:][::-1]
 
     for index in indexes:
         top_rank.append(rank[index])
@@ -126,7 +128,7 @@ def main():
     for layer in layers:
         for activation_value in activation_values:
             for momentum_value in momentum_values:
-                for feature_number in range(1, 15):
+                for feature_number in range(15, 20):
                     to_train = indexes[:feature_number]
 
                     print("---------------------------------")
@@ -142,7 +144,6 @@ def main():
 
                     print(f'{current_examination}/{total_examinations} - end')
                     current_examination += 1
-                    print("---------------------------------")
 
     dflist = pd.DataFrame(list_score)
     dflist.to_csv('wyniki.txt', encoding='utf-8', index=False)
