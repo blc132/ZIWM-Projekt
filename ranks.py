@@ -40,7 +40,7 @@ def classification(X, Y, activation_value, momentum_value, top_rank, fvalue_sele
 
     # Utworzenie modelu o wcześniej zdefiniowanych parametrach
     mlp = MLPClassifier(hidden_layer_sizes=layer_size,
-                        activation=activation_value, max_iter=200, momentum=momentum_value)
+                        activation=activation_value, max_iter=1000, momentum=momentum_value)
 
     first_time = True
     # Pętla dla 5 krotnej walidacji krzyżowej
@@ -117,7 +117,7 @@ def main():
 
     # Całkowita liczba wszystkich badań
     total_examinations = len(momentum_values) * \
-        len(activation_values) * len(layers) * 10
+        len(activation_values) * len(layers) * 15
 
     # Indeks aktualnego badania
     current_examination = 1
@@ -129,6 +129,9 @@ def main():
                 for feature_number in range(1, 15):
                     to_train = indexes[:feature_number]
 
+                    print("---------------------------------")
+                    print(
+                        f"layers {layer}, activation value: {activation_value}, momentum_value {momentum_value}, feature_number: {feature_number}")
                     print(f'{current_examination}/{total_examinations} - start')
 
                     best_score = classification(X=X[:, to_train], Y=Y, activation_value=activation_value,
@@ -139,6 +142,7 @@ def main():
 
                     print(f'{current_examination}/{total_examinations} - end')
                     current_examination += 1
+                    print("---------------------------------")
 
     dflist = pd.DataFrame(list_score)
     dflist.to_csv('wyniki.txt', encoding='utf-8', index=False)
