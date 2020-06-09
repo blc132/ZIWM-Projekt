@@ -60,6 +60,8 @@ def classification(X, Y, activation_value, momentum_value, top_rank, fvalue_sele
         # Macierz pomyłek
         confusion_matrix_value = confusion_matrix(y_test, predict)
 
+        print(score)
+
         # Utworzenie nowego rekordu z danymi odnośnie wykonanego badania
         if first_time:
             temp_score = score
@@ -69,8 +71,8 @@ def classification(X, Y, activation_value, momentum_value, top_rank, fvalue_sele
             temp_score = temp_score + score
             temp_confusion_matrix = temp_confusion_matrix + confusion_matrix_value
 
-    current_score = [temp_score/5, activation_value, momentum_value,
-                     layer_size, len(top_rank), temp_confusion_matrix/5]
+    current_score = [temp_score/10, activation_value, momentum_value,
+                     layer_size, len(top_rank), temp_confusion_matrix/10]
     # Ustawienie aktualnie najlepszego wyniku
     if best_score[0] < current_score[0]:
         best_score = deepcopy(current_score)
